@@ -1,0 +1,43 @@
+package com.example.springmodels.controllers;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class MainController {
+
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/store";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        // Редирект в зависимости от роли пользователя
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            String role = authority.getAuthority();
+            switch (role) {
+                case "ADMIN":
+                    return "redirect:/admin/dashboard";
+                case "MODERATOR":
+                    return "redirect:/moderator/dashboard";
+                case "USER":
+                    return "redirect:/user/dashboard";
+            }
+        }
+
+        return "redirect:/login";
+    }
+    
+    @GetMapping("/store")
+    public String store() {
+        return "redirect:/";
+    }
+}
+

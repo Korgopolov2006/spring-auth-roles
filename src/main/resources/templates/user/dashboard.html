@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет | Spring Security</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .user-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .user-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .user-subtitle {
+            color: #4a5568;
+            font-size: 16px;
+        }
+        
+        .welcome-message {
+            background: linear-gradient(135deg, rgba(56, 161, 105, 0.1) 0%, rgba(47, 133, 90, 0.1) 100%);
+            color: #22543d;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border-left: 4px solid #38a169;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .user-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            padding: 20px;
+            background: rgba(56, 161, 105, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #38a169;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #718096;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .user-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .action-button {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            color: white;
+            text-decoration: none;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(56, 161, 105, 0.3);
+        }
+        
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(56, 161, 105, 0.4);
+            color: white;
+        }
+        
+        .action-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .logout-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .logout-button {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(229, 62, 62, 0.3);
+        }
+        
+        .logout-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(229, 62, 62, 0.4);
+        }
+        
+        .session-info {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-container">
+        <div class="user-header">
+            <h1 class="user-title">
+                <i class="fas fa-user"></i> Личный кабинет
+            </h1>
+            <p class="user-subtitle">Добро пожаловать в систему!</p>
+        </div>
+        
+        <div class="session-info">
+            <i class="fas fa-clock"></i> Сессия активна. Автоматический выход через 15 минут бездействия или через 3 минуты неактивности.
+        </div>
+        
+        <div class="welcome-message" th:text="${welcomeMessage}">
+            Добро пожаловать в личный кабинет!
+        </div>
+        
+        <div class="user-info">
+            <h3 style="margin-bottom: 20px; color: #2d3748;">
+                <i class="fas fa-info-circle"></i> Информация о пользователе
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Имя пользователя</div>
+                    <div class="info-value" th:text="${user.username}">user</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">ID пользователя</div>
+                    <div class="info-value" th:text="${user.idUser}">1</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Статус аккаунта</div>
+                    <div class="info-value" th:text="${user.active ? 'Активен' : 'Заблокирован'}">Активен</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Роль в системе</div>
+                    <div class="info-value">Пользователь</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="user-actions">
+            <a href="/user/profile" class="action-button">
+                <i class="fas fa-user-edit action-icon"></i>
+                Редактировать профиль
+            </a>
+            
+            <a href="/user/settings" class="action-button">
+                <i class="fas fa-cog action-icon"></i>
+                Настройки аккаунта
+            </a>
+            
+            <a href="/user/activity" class="action-button">
+                <i class="fas fa-chart-line action-icon"></i>
+                Активность
+            </a>
+            
+            <a href="/user/help" class="action-button">
+                <i class="fas fa-question-circle action-icon"></i>
+                Помощь
+            </a>
+        </div>
+        
+        <div class="logout-section">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-button">
+                    <i class="fas fa-sign-out-alt"></i> Выйти из системы
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Автоматический выход через 3 минуты бездействия
+        let inactivityTimer;
+        const inactivityTimeout = 3 * 60 * 1000; // 3 минуты
+        
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                alert('Сессия завершена из-за неактивности');
+                window.location.href = '/login';
+            }, inactivityTimeout);
+        }
+        
+        // Сброс таймера при активности пользователя
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+        
+        // Запуск таймера при загрузке страницы
+        resetInactivityTimer();
+    </script>
+</body>
+</html>
+
+

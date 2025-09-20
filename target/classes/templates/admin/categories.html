@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление категориями - Админ панель</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .admin-subtitle {
+            color: #4a5568;
+            font-size: 16px;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(245, 101, 101, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(237, 137, 54, 0.3);
+        }
+        
+        .data-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .hierarchy {
+            margin-left: 20px;
+        }
+        
+        .parent-category {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .child-category {
+            color: #718096;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1 class="admin-title">
+                <i class="fas fa-tags"></i> Управление категориями
+            </h1>
+            <p class="admin-subtitle">CRUD операции для категорий товаров</p>
+        </div>
+        
+        <div class="data-table">
+            <div class="admin-actions">
+                <a href="/admin/dashboard" class="btn btn-warning">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
+                <button onclick="openModal('add')" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Добавить категорию
+                </button>
+                <button onclick="refreshTable()" class="btn btn-success">
+                    <i class="fas fa-sync"></i> Обновить
+                </button>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Поиск категорий...">
+                <select id="statusFilter" class="filter-select">
+                    <option value="">Все статусы</option>
+                    <option value="active">Активные</option>
+                    <option value="inactive">Неактивные</option>
+                </select>
+            </div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Родительская категория</th>
+                        <th>Описание</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="category : ${categories}">
+                        <td th:text="${category.id}">1</td>
+                        <td>
+                            <div th:classappend="${category.parent != null} ? 'hierarchy child-category' : 'parent-category'" th:text="${category.name}">Смартфоны</div>
+                        </td>
+                        <td th:text="${category.parent != null ? category.parent.name : '-'}">-</td>
+                        <td th:text="${category.description}">Мобильные телефоны и аксессуары</td>
+                        <td>
+                            <span th:if="${category.isActive}" class="status-badge status-active">Активна</span>
+                            <span th:unless="${category.isActive}" class="status-badge status-inactive">Неактивна</span>
+                        </td>
+                        <td th:text="${#temporals.format(category.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2024 12:00</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button onclick="openModal('edit', ${category.id})" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteCategory(${category.id})" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal для добавления/редактирования категории -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Добавить категорию</h2>
+            <form id="categoryForm">
+                <input type="hidden" id="categoryId" name="id">
+                
+                <div class="form-group">
+                    <label for="categoryName">Название категории *</label>
+                    <input type="text" id="categoryName" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="categoryDescription">Описание</label>
+                    <textarea id="categoryDescription" name="description" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="categoryParent">Родительская категория</label>
+                    <select id="categoryParent" name="parentId">
+                        <option value="">Нет (корневая категория)</option>
+                        <option value="1">Смартфоны</option>
+                        <option value="2">Ноутбуки</option>
+                        <option value="3">Планшеты</option>
+                        <option value="4">Наушники</option>
+                        <option value="5">Игровые устройства</option>
+                        <option value="6">Аксессуары</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="categoryActive" name="isActive" checked>
+                        Активная категория
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 30px;">
+                    <button type="button" onclick="closeModal()" class="btn btn-warning">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Открытие модального окна
+        function openModal(action, categoryId = null) {
+            const modal = document.getElementById('categoryModal');
+            const form = document.getElementById('categoryForm');
+            const title = document.getElementById('modalTitle');
+            
+            if (action === 'add') {
+                title.textContent = 'Добавить категорию';
+                form.reset();
+                document.getElementById('categoryId').value = '';
+            } else if (action === 'edit') {
+                title.textContent = 'Редактировать категорию';
+                // Здесь можно загрузить данные категории через AJAX
+                loadCategoryData(categoryId);
+            }
+            
+            modal.style.display = 'block';
+        }
+        
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('categoryModal').style.display = 'none';
+        }
+        
+        // Загрузка данных категории для редактирования
+        function loadCategoryData(categoryId) {
+            // Здесь можно реализовать AJAX загрузку данных категории
+            console.log('Loading category data for ID:', categoryId);
+        }
+        
+        // Удаление категории
+        function deleteCategory(categoryId) {
+            if (confirm('Вы уверены, что хотите удалить эту категорию?')) {
+                // Здесь можно реализовать AJAX удаление
+                console.log('Deleting category with ID:', categoryId);
+                alert('Категория удалена!');
+                location.reload();
+            }
+        }
+        
+        // Обновление таблицы
+        function refreshTable() {
+            location.reload();
+        }
+        
+        // Поиск и фильтрация
+        document.getElementById('searchInput').addEventListener('input', filterTable);
+        document.getElementById('statusFilter').addEventListener('change', filterTable);
+        
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('.table tbody tr');
+            
+            rows.forEach(row => {
+                const name = row.cells[1].textContent.toLowerCase();
+                const isActive = row.cells[4].textContent.includes('Активна');
+                
+                let show = true;
+                
+                if (searchTerm && !name.includes(searchTerm)) {
+                    show = false;
+                }
+                
+                if (statusFilter === 'active' && !isActive) {
+                    show = false;
+                } else if (statusFilter === 'inactive' && isActive) {
+                    show = false;
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+        
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('categoryModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Обработка формы
+        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const categoryData = Object.fromEntries(formData.entries());
+            
+            console.log('Category data:', categoryData);
+            
+            // Здесь можно реализовать AJAX отправку данных
+            alert('Категория сохранена!');
+            closeModal();
+            location.reload();
+        });
+    </script>
+</body>
+</html>
+

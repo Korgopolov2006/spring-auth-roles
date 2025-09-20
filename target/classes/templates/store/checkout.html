@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление заказа - TechStore</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microchip"></i>
+                    <span>TechStore</span>
+                </div>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/catalog" class="nav-link">Каталог</a>
+                    <a href="/about" class="nav-link">О нас</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="/cart" class="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                    <div class="user-menu">
+                        <a href="/login" class="btn btn-outline">Войти</a>
+                        <a href="/registration" class="btn btn-primary">Регистрация</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a href="/">Главная</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="/catalog">Каталог</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="/cart">Корзина</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>Оформление заказа</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="checkout-page">
+                <h1 class="page-title">Оформление заказа</h1>
+                
+                <div class="checkout-content">
+                    <!-- Order Form -->
+                    <div class="checkout-form">
+                        <form method="post" action="/order/create" class="order-form">
+                            <!-- Delivery Information -->
+                            <div class="form-section">
+                                <h2>Информация о доставке</h2>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="firstName">Имя *</label>
+                                        <input type="text" id="firstName" name="firstName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Фамилия *</label>
+                                        <input type="text" id="lastName" name="lastName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Email *</label>
+                                        <input type="email" id="email" name="email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Телефон *</label>
+                                        <input type="tel" id="phone" name="phone" required>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label for="address">Адрес доставки *</label>
+                                        <textarea id="address" name="address" rows="3" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="city">Город *</label>
+                                        <input type="text" id="city" name="city" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="postalCode">Почтовый индекс</label>
+                                        <input type="text" id="postalCode" name="postalCode">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="form-section">
+                                <h2>Способ оплаты</h2>
+                                <div class="payment-methods">
+                                    <label class="payment-method">
+                                        <input type="radio" name="paymentMethod" value="card" checked>
+                                        <div class="payment-option">
+                                            <i class="fas fa-credit-card"></i>
+                                            <span>Банковская карта</span>
+                                        </div>
+                                    </label>
+                                    <label class="payment-method">
+                                        <input type="radio" name="paymentMethod" value="cash">
+                                        <div class="payment-option">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                            <span>Наличными при получении</span>
+                                        </div>
+                                    </label>
+                                    <label class="payment-method">
+                                        <input type="radio" name="paymentMethod" value="transfer">
+                                        <div class="payment-option">
+                                            <i class="fas fa-university"></i>
+                                            <span>Банковский перевод</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Method -->
+                            <div class="form-section">
+                                <h2>Способ доставки</h2>
+                                <div class="delivery-methods">
+                                    <label class="delivery-method">
+                                        <input type="radio" name="deliveryMethod" value="courier" checked>
+                                        <div class="delivery-option">
+                                            <div class="delivery-info">
+                                                <h3>Курьерская доставка</h3>
+                                                <p>Доставка по адресу в течение 1-3 дней</p>
+                                                <span class="delivery-price">Бесплатно от 5000 ₽</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="delivery-method">
+                                        <input type="radio" name="deliveryMethod" value="pickup">
+                                        <div class="delivery-option">
+                                            <div class="delivery-info">
+                                                <h3>Самовывоз</h3>
+                                                <p>Забрать из нашего магазина</p>
+                                                <span class="delivery-price">Бесплатно</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Promo Code -->
+                            <div class="form-section">
+                                <h2>Промокод</h2>
+                                <div class="promo-section">
+                                    <input type="text" name="promoCode" placeholder="Введите промокод" class="promo-input">
+                                    <button type="button" class="btn btn-outline apply-promo">Применить</button>
+                                </div>
+                            </div>
+
+                            <!-- Order Notes -->
+                            <div class="form-section">
+                                <h2>Комментарий к заказу</h2>
+                                <textarea name="notes" rows="3" placeholder="Дополнительная информация к заказу"></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <a href="/cart" class="btn btn-outline">Вернуться в корзину</a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-check"></i>
+                                    Оформить заказ
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <div class="summary-card">
+                            <h3>Ваш заказ</h3>
+                            
+                            <div class="order-items">
+                                <div th:each="item : ${cartItems}" class="order-item">
+                                    <div class="item-image">
+                                        <img th:src="@{/images/placeholder.jpg}" alt="Product Image">
+                                    </div>
+                                    <div class="item-info">
+                                        <h4 th:text="${item.product.name}">Название товара</h4>
+                                        <p th:text="'Количество: ' + ${item.quantity}">Количество: 1</p>
+                                        <span class="item-price" th:text="${#numbers.formatDecimal(item.product.price * item.quantity, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-totals">
+                                <div class="summary-row">
+                                    <span>Товары:</span>
+                                    <span class="cart-total" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Доставка:</span>
+                                    <span class="delivery-cost">Бесплатно</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>К оплате:</span>
+                                    <span class="cart-total" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Security Info -->
+                        <div class="security-info">
+                            <h4>Безопасность</h4>
+                            <div class="security-features">
+                                <div class="security-feature">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>SSL-шифрование</span>
+                                </div>
+                                <div class="security-feature">
+                                    <i class="fas fa-lock"></i>
+                                    <span>Защита данных</span>
+                                </div>
+                                <div class="security-feature">
+                                    <i class="fas fa-undo"></i>
+                                    <span>Возврат 14 дней</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TechStore</h3>
+                    <p>Ваш надежный партнер в мире электроники</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Каталог</h4>
+                    <ul>
+                        <li><a href="/catalog">Все товары</a></li>
+                        <li><a href="/catalog?categoryId=1">Смартфоны</a></li>
+                        <li><a href="/catalog?categoryId=2">Ноутбуки</a></li>
+                        <li><a href="/catalog?categoryId=3">Планшеты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Поддержка</h4>
+                    <ul>
+                        <li><a href="/help">Помощь</a></li>
+                        <li><a href="/delivery">Доставка</a></li>
+                        <li><a href="/warranty">Гарантия</a></li>
+                        <li><a href="/returns">Возврат</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <p>+7 (800) 555-35-35</p>
+                    <p>info@techstore.ru</p>
+                    <p>Москва, ул. Техническая, 1</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TechStore. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script th:src="@{/js/store.js}"></script>
+</body>
+</html>
+

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление заказами - Админ панель</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .admin-subtitle {
+            color: #4a5568;
+            font-size: 16px;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(245, 101, 101, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(237, 137, 54, 0.3);
+        }
+        
+        .data-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #fef5e7;
+            color: #744210;
+        }
+        
+        .status-processing {
+            background: #e6fffa;
+            color: #234e52;
+        }
+        
+        .status-shipped {
+            background: #e6f3ff;
+            color: #1a365d;
+        }
+        
+        .status-delivered {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-cancelled {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .payment-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .payment-pending {
+            background: #fef5e7;
+            color: #744210;
+        }
+        
+        .payment-paid {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .payment-failed {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .price {
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .order-details {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        
+        .order-details h4 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+            font-size: 14px;
+        }
+        
+        .order-details p {
+            margin: 5px 0;
+            color: #4a5568;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1 class="admin-title">
+                <i class="fas fa-shopping-cart"></i> Управление заказами
+            </h1>
+            <p class="admin-subtitle">CRUD операции для заказов покупателей</p>
+        </div>
+        
+        <div class="data-table">
+            <div class="admin-actions">
+                <a href="/admin/dashboard" class="btn btn-warning">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
+                <button onclick="refreshTable()" class="btn btn-success">
+                    <i class="fas fa-sync"></i> Обновить
+                </button>
+                <button onclick="exportOrders()" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Экспорт
+                </button>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Поиск по номеру заказа, клиенту...">
+                <select id="statusFilter" class="filter-select">
+                    <option value="">Все статусы</option>
+                    <option value="PENDING">Ожидает</option>
+                    <option value="PROCESSING">Обрабатывается</option>
+                    <option value="SHIPPED">Отправлен</option>
+                    <option value="DELIVERED">Доставлен</option>
+                    <option value="CANCELLED">Отменен</option>
+                </select>
+                <select id="paymentFilter" class="filter-select">
+                    <option value="">Все платежи</option>
+                    <option value="PENDING">Ожидает оплаты</option>
+                    <option value="PAID">Оплачен</option>
+                    <option value="FAILED">Ошибка оплаты</option>
+                </select>
+            </div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Номер заказа</th>
+                        <th>Клиент</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Оплата</th>
+                        <th>Дата</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${order.id}">1</td>
+                        <td>
+                            <strong th:text="${order.orderNumber}">ORD-1234567890</strong>
+                        </td>
+                        <td>
+                            <div th:text="${order.user.username}">user123</div>
+                            <small th:if="${order.shippingAddress}" th:text="${order.shippingAddress}" style="color: #718096; display: block;">Адрес доставки</small>
+                        </td>
+                        <td class="price" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')} + ' ₽'">99,999 ₽</td>
+                        <td>
+                            <span th:classappend="'status-' + ${order.status.toLowerCase()}" class="status-badge" th:text="${order.status}">PENDING</span>
+                        </td>
+                        <td>
+                            <span th:classappend="'payment-' + ${order.paymentStatus.toLowerCase()}" class="payment-status" th:text="${order.paymentStatus}">PENDING</span>
+                        </td>
+                        <td th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2024 12:00</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button onclick="viewOrder(${order.id})" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editOrder(${order.id})" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="updateOrderStatus(${order.id})" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal для просмотра/редактирования заказа -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Детали заказа</h2>
+            <div id="orderDetails">
+                <!-- Детали заказа будут загружены через AJAX -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal для изменения статуса заказа -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeStatusModal()">&times;</span>
+            <h2>Изменить статус заказа</h2>
+            <form id="statusForm">
+                <input type="hidden" id="orderId" name="orderId">
+                
+                <div class="form-group">
+                    <label for="orderStatus">Статус заказа</label>
+                    <select id="orderStatus" name="status">
+                        <option value="PENDING">Ожидает</option>
+                        <option value="PROCESSING">Обрабатывается</option>
+                        <option value="SHIPPED">Отправлен</option>
+                        <option value="DELIVERED">Доставлен</option>
+                        <option value="CANCELLED">Отменен</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentStatus">Статус оплаты</label>
+                    <select id="paymentStatus" name="paymentStatus">
+                        <option value="PENDING">Ожидает оплаты</option>
+                        <option value="PAID">Оплачен</option>
+                        <option value="FAILED">Ошибка оплаты</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="orderNotes">Комментарий</label>
+                    <textarea id="orderNotes" name="notes" rows="3"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 30px;">
+                    <button type="button" onclick="closeStatusModal()" class="btn btn-warning">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Просмотр заказа
+        function viewOrder(orderId) {
+            const modal = document.getElementById('orderModal');
+            const title = document.getElementById('modalTitle');
+            const details = document.getElementById('orderDetails');
+            
+            title.textContent = 'Детали заказа #' + orderId;
+            
+            // Здесь можно загрузить детали заказа через AJAX
+            details.innerHTML = `
+                <div class="order-details">
+                    <h4>Информация о заказе</h4>
+                    <p><strong>Номер заказа:</strong> ORD-${orderId}</p>
+                    <p><strong>Клиент:</strong> user123</p>
+                    <p><strong>Сумма:</strong> 99,999 ₽</p>
+                    <p><strong>Статус:</strong> PENDING</p>
+                    <p><strong>Дата создания:</strong> 01.01.2024 12:00</p>
+                </div>
+                
+                <div class="order-details">
+                    <h4>Товары в заказе</h4>
+                    <p>iPhone 15 Pro - 1 шт. - 99,999 ₽</p>
+                    <p>AirPods Pro 2 - 1 шт. - 19,999 ₽</p>
+                </div>
+                
+                <div class="order-details">
+                    <h4>Адрес доставки</h4>
+                    <p>Москва, ул. Техническая, 1, кв. 123</p>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+        
+        // Редактирование заказа
+        function editOrder(orderId) {
+            console.log('Editing order:', orderId);
+            // Здесь можно открыть форму редактирования
+        }
+        
+        // Изменение статуса заказа
+        function updateOrderStatus(orderId) {
+            const modal = document.getElementById('statusModal');
+            document.getElementById('orderId').value = orderId;
+            modal.style.display = 'block';
+        }
+        
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('orderModal').style.display = 'none';
+        }
+        
+        function closeStatusModal() {
+            document.getElementById('statusModal').style.display = 'none';
+        }
+        
+        // Обновление таблицы
+        function refreshTable() {
+            location.reload();
+        }
+        
+        // Экспорт заказов
+        function exportOrders() {
+            console.log('Exporting orders...');
+            alert('Экспорт заказов в CSV');
+        }
+        
+        // Поиск и фильтрация
+        document.getElementById('searchInput').addEventListener('input', filterTable);
+        document.getElementById('statusFilter').addEventListener('change', filterTable);
+        document.getElementById('paymentFilter').addEventListener('change', filterTable);
+        
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const paymentFilter = document.getElementById('paymentFilter').value;
+            const rows = document.querySelectorAll('.table tbody tr');
+            
+            rows.forEach(row => {
+                const orderNumber = row.cells[1].textContent.toLowerCase();
+                const customer = row.cells[2].textContent.toLowerCase();
+                const status = row.cells[4].textContent;
+                const payment = row.cells[5].textContent;
+                
+                let show = true;
+                
+                if (searchTerm && !orderNumber.includes(searchTerm) && !customer.includes(searchTerm)) {
+                    show = false;
+                }
+                
+                if (statusFilter && !status.includes(statusFilter)) {
+                    show = false;
+                }
+                
+                if (paymentFilter && !payment.includes(paymentFilter)) {
+                    show = false;
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+        
+        // Закрытие модальных окон при клике вне их
+        window.onclick = function(event) {
+            const orderModal = document.getElementById('orderModal');
+            const statusModal = document.getElementById('statusModal');
+            
+            if (event.target === orderModal) {
+                closeModal();
+            }
+            if (event.target === statusModal) {
+                closeStatusModal();
+            }
+        }
+        
+        // Обработка формы изменения статуса
+        document.getElementById('statusForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const statusData = Object.fromEntries(formData.entries());
+            
+            console.log('Status update data:', statusData);
+            
+            // Здесь можно реализовать AJAX отправку данных
+            alert('Статус заказа обновлен!');
+            closeStatusModal();
+            location.reload();
+        });
+    </script>
+</body>
+</html>
+

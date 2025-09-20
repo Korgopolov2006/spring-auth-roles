@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechStore - Магазин электроники</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microchip"></i>
+                    <span>TechStore</span>
+                </div>
+                <nav class="nav">
+                    <a href="/" class="nav-link active">Главная</a>
+                    <a href="/catalog" class="nav-link">Каталог</a>
+                    <a href="/about" class="nav-link">О нас</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="/cart" class="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                    <div class="user-menu" th:if="${#authentication == null}">
+                        <a th:href="@{/login}" class="btn btn-outline">Войти</a>
+                        <a th:href="@{/registration}" class="btn btn-primary">Регистрация</a>
+                    </div>
+                    <div class="user-menu" th:if="${#authentication != null}">
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-btn">
+                                <i class="fas fa-user"></i>
+                                <span class="user-name" th:text="${#authentication.name}">Пользователь</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="user-dropdown-menu">
+                                <a th:href="@{/orders}" class="dropdown-item">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Мои заказы
+                                </a>
+                                <a th:href="@{/user/profile}" class="dropdown-item">
+                                    <i class="fas fa-user-circle"></i>
+                                    Профиль
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a th:href="@{/logout}" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Выйти
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Добро пожаловать в TechStore</h1>
+                <p class="hero-subtitle">Лучшие электронные товары по доступным ценам</p>
+                <div class="hero-actions">
+                    <a href="/catalog" class="btn btn-primary btn-lg">Смотреть каталог</a>
+                    <a href="#featured" class="btn btn-outline btn-lg">Популярные товары</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories">
+        <div class="container">
+            <h2 class="section-title">Категории товаров</h2>
+            <div class="categories-grid">
+                <div th:each="category : ${categories}" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h3 th:text="${category.name}">Категория</h3>
+                    <p th:text="${category.description}">Описание категории</p>
+                    <a th:href="@{/catalog(categoryId=${category.id})}" class="btn btn-outline">Смотреть товары</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section id="featured" class="featured-products">
+        <div class="container">
+            <h2 class="section-title">Популярные товары</h2>
+            <div class="products-grid">
+                <div th:each="product : ${featuredProducts}" class="product-card">
+                    <div class="product-image">
+                        <img th:src="@{/images/placeholder.jpg}" alt="Product Image">
+                        <div class="product-badge" th:if="${product.isFeatured}">Хит</div>
+                    </div>
+                    <div class="product-info">
+                        <h3 th:text="${product.name}">Название товара</h3>
+                        <p class="product-description" th:text="${product.description}">Описание товара</p>
+                        <div class="product-price">
+                            <span class="current-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                            <span th:if="${product.oldPrice != null}" class="old-price" th:text="${#numbers.formatDecimal(product.oldPrice, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                        </div>
+                        <div class="product-actions">
+                            <a th:href="@{/product/{id}(id=${product.id})}" class="btn btn-outline">Подробнее</a>
+                            <button class="btn btn-primary add-to-cart" th:data-product-id="${product.id}">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h3>Быстрая доставка</h3>
+                    <p>Доставляем товары по всей России за 1-3 дня</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Гарантия качества</h3>
+                    <p>Официальная гарантия на все товары</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>Поддержка 24/7</h3>
+                    <p>Круглосуточная техническая поддержка</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-undo"></i>
+                    </div>
+                    <h3>Возврат товара</h3>
+                    <p>Возврат в течение 14 дней без объяснения причин</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TechStore</h3>
+                    <p>Ваш надежный партнер в мире электроники</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Каталог</h4>
+                    <ul>
+                        <li><a href="/catalog">Все товары</a></li>
+                        <li><a href="/catalog?categoryId=1">Смартфоны</a></li>
+                        <li><a href="/catalog?categoryId=2">Ноутбуки</a></li>
+                        <li><a href="/catalog?categoryId=3">Планшеты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Поддержка</h4>
+                    <ul>
+                        <li><a href="/help">Помощь</a></li>
+                        <li><a href="/delivery">Доставка</a></li>
+                        <li><a href="/warranty">Гарантия</a></li>
+                        <li><a href="/returns">Возврат</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <p>+7 (800) 555-35-35</p>
+                    <p>info@techstore.ru</p>
+                    <p>Москва, ул. Техническая, 1</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TechStore. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script th:src="@{/js/store.js}"></script>
+</body>
+</html>
+

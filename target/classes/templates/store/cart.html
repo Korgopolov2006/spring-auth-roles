@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина - TechStore</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microchip"></i>
+                    <span>TechStore</span>
+                </div>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/catalog" class="nav-link">Каталог</a>
+                    <a href="/about" class="nav-link">О нас</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="/cart" class="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                    <div class="user-menu" th:if="${#authentication == null}">
+                        <a th:href="@{/login}" class="btn btn-outline">Войти</a>
+                        <a th:href="@{/registration}" class="btn btn-primary">Регистрация</a>
+                    </div>
+                    <div class="user-menu" th:if="${#authentication != null}">
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-btn">
+                                <i class="fas fa-user"></i>
+                                <span class="user-name" th:text="${#authentication.name}">Пользователь</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="user-dropdown-menu">
+                                <a th:href="@{/orders}" class="dropdown-item">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Мои заказы
+                                </a>
+                                <a th:href="@{/user/profile}" class="dropdown-item">
+                                    <i class="fas fa-user-circle"></i>
+                                    Профиль
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a th:href="@{/logout}" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Выйти
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a href="/">Главная</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="/catalog">Каталог</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>Корзина</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="cart-page">
+                <h1 class="page-title">Корзина покупок</h1>
+                
+                <!-- Empty Cart -->
+                <div class="empty-cart" th:if="${cartItems == null or cartItems.size() == 0}">
+                    <div class="empty-cart-content">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>Ваша корзина пуста</h3>
+                        <p>Добавьте товары из каталога, чтобы оформить заказ</p>
+                        <a href="/catalog" class="btn btn-primary">Перейти в каталог</a>
+                    </div>
+                </div>
+
+                <!-- Cart Items -->
+                <div class="cart-content" th:if="${cartItems != null and cartItems.size() > 0}">
+                    <div class="cart-items">
+                        <div th:each="item : ${cartItems}" class="cart-item" th:data-price="${item.product.price}">
+                            <div class="cart-item-image">
+                                <img th:src="@{/images/placeholder.jpg}" alt="Product Image">
+                            </div>
+                            
+                            <div class="cart-item-info">
+                                <h3 th:text="${item.product.name}">Название товара</h3>
+                                <p class="cart-item-category" th:text="${item.product.category.name}">Категория</p>
+                                <p class="cart-item-manufacturer" th:text="${item.product.manufacturer.name}">Производитель</p>
+                                
+                                <div class="cart-item-price">
+                                    <span class="price" th:text="${#numbers.formatDecimal(item.product.price, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                </div>
+                            </div>
+                            
+                            <div class="cart-item-quantity">
+                                <label for="quantity-${item.id}">Количество:</label>
+                                <div class="quantity-controls">
+                                    <button type="button" class="quantity-btn minus" onclick="changeQuantity(${item.id}, -1)">-</button>
+                                    <input type="number" 
+                                           th:id="'quantity-' + ${item.id}"
+                                           class="cart-quantity" 
+                                           th:data-cart-item-id="${item.id}"
+                                           th:value="${item.quantity}" 
+                                           min="1" 
+                                           max="99">
+                                    <button type="button" class="quantity-btn plus" onclick="changeQuantity(${item.id}, 1)">+</button>
+                                </div>
+                            </div>
+                            
+                            <div class="cart-item-total">
+                                <span class="item-total" th:text="${#numbers.formatDecimal(item.product.price * item.quantity, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                            </div>
+                            
+                            <div class="cart-item-actions">
+                                <button type="button" 
+                                        class="btn btn-danger btn-sm remove-from-cart" 
+                                        th:data-cart-item-id="${item.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cart Summary -->
+                    <div class="cart-summary">
+                        <div class="summary-card">
+                            <h3>Итого</h3>
+                            
+                            <div class="summary-row">
+                                <span>Товары:</span>
+                                <span class="cart-total" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                            </div>
+                            
+                            <div class="summary-row">
+                                <span>Доставка:</span>
+                                <span class="delivery-cost">Бесплатно</span>
+                            </div>
+                            
+                            <div class="summary-row total">
+                                <span>К оплате:</span>
+                                <span class="cart-total" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                            </div>
+                            
+                            <div class="summary-actions">
+                                <a href="/catalog" class="btn btn-outline">Продолжить покупки</a>
+                                <a href="/checkout" class="btn btn-primary btn-lg">Оформить заказ</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Promo Code -->
+                        <div class="promo-code">
+                            <h4>Промокод</h4>
+                            <form class="promo-form">
+                                <input type="text" placeholder="Введите промокод" class="promo-input">
+                                <button type="submit" class="btn btn-outline">Применить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TechStore</h3>
+                    <p>Ваш надежный партнер в мире электроники</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Каталог</h4>
+                    <ul>
+                        <li><a href="/catalog">Все товары</a></li>
+                        <li><a href="/catalog?categoryId=1">Смартфоны</a></li>
+                        <li><a href="/catalog?categoryId=2">Ноутбуки</a></li>
+                        <li><a href="/catalog?categoryId=3">Планшеты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Поддержка</h4>
+                    <ul>
+                        <li><a href="/help">Помощь</a></li>
+                        <li><a href="/delivery">Доставка</a></li>
+                        <li><a href="/warranty">Гарантия</a></li>
+                        <li><a href="/returns">Возврат</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <p>+7 (800) 555-35-35</p>
+                    <p>info@techstore.ru</p>
+                    <p>Москва, ул. Техническая, 1</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TechStore. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script th:src="@{/js/store.js}"></script>
+    <script>
+        function changeQuantity(cartItemId, change) {
+            const input = document.getElementById('quantity-' + cartItemId);
+            const currentValue = parseInt(input.value);
+            const newValue = Math.max(1, Math.min(99, currentValue + change));
+            input.value = newValue;
+            input.dispatchEvent(new Event('change'));
+        }
+    </script>
+</body>
+</html>
+

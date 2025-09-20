@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление промокодами - Админ панель</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .admin-subtitle {
+            color: #4a5568;
+            font-size: 16px;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(245, 101, 101, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(237, 137, 54, 0.3);
+        }
+        
+        .data-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status-expired {
+            background: #fef5e7;
+            color: #744210;
+        }
+        
+        .discount-type {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .discount-percentage {
+            color: #e53e3e;
+        }
+        
+        .discount-amount {
+            color: #38a169;
+        }
+        
+        .usage-stats {
+            font-size: 12px;
+            color: #718096;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .discount-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .discount-type-option {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .discount-type-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .coupon-code {
+            font-family: 'Courier New', monospace;
+            background: #f7fafc;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1 class="admin-title">
+                <i class="fas fa-ticket-alt"></i> Управление промокодами
+            </h1>
+            <p class="admin-subtitle">CRUD операции для промокодов и скидок</p>
+        </div>
+        
+        <div class="data-table">
+            <div class="admin-actions">
+                <a href="/admin/dashboard" class="btn btn-warning">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
+                <button onclick="openModal('add')" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Добавить промокод
+                </button>
+                <button onclick="refreshTable()" class="btn btn-success">
+                    <i class="fas fa-sync"></i> Обновить
+                </button>
+                <button onclick="generateRandomCoupon()" class="btn btn-warning">
+                    <i class="fas fa-magic"></i> Сгенерировать случайный
+                </button>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Поиск по коду промокода...">
+                <select id="typeFilter" class="filter-select">
+                    <option value="">Все типы</option>
+                    <option value="percentage">Процентная скидка</option>
+                    <option value="amount">Фиксированная скидка</option>
+                </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">Все статусы</option>
+                    <option value="active">Активные</option>
+                    <option value="inactive">Неактивные</option>
+                    <option value="expired">Истекшие</option>
+                </select>
+            </div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Код</th>
+                        <th>Тип скидки</th>
+                        <th>Размер скидки</th>
+                        <th>Минимальная сумма</th>
+                        <th>Использований</th>
+                        <th>Статус</th>
+                        <th>Срок действия</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="coupon : ${coupons}">
+                        <td th:text="${coupon.id}">1</td>
+                        <td>
+                            <span class="coupon-code" th:text="${coupon.code}">WELCOME10</span>
+                        </td>
+                        <td>
+                            <span th:if="${coupon.discountPercentage != null}" class="discount-type discount-percentage">Процент</span>
+                            <span th:if="${coupon.discountAmount != null}" class="discount-type discount-amount">Сумма</span>
+                        </td>
+                        <td>
+                            <span th:if="${coupon.discountPercentage != null}" th:text="${coupon.discountPercentage} + '%'">10%</span>
+                            <span th:if="${coupon.discountAmount != null}" th:text="${#numbers.formatDecimal(coupon.discountAmount, 0, 'COMMA', 2, 'POINT')} + ' ₽'">1,000 ₽</span>
+                        </td>
+                        <td th:text="${coupon.minOrderAmount != null ? #numbers.formatDecimal(coupon.minOrderAmount, 0, 'COMMA', 2, 'POINT') + ' ₽' : '-'}">5,000 ₽</td>
+                        <td>
+                            <span th:text="${coupon.usedCount != null ? coupon.usedCount : 0} + '/' + ${coupon.usageLimit != null ? coupon.usageLimit : '∞'}">5/100</span>
+                            <div class="usage-stats" th:if="${coupon.usedCount != null and coupon.usedCount > 0}">
+                                <span th:text="'Использовано: ' + ${coupon.usedCount}">Использовано: 5</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span th:if="${coupon.isActive}" class="status-badge status-active">Активен</span>
+                            <span th:unless="${coupon.isActive}" class="status-badge status-inactive">Неактивен</span>
+                        </td>
+                        <td>
+                            <span th:if="${coupon.expirationDate != null}" th:text="${#temporals.format(coupon.expirationDate, 'dd.MM.yyyy')}">31.12.2024</span>
+                            <span th:unless="${coupon.expirationDate != null}" style="color: #718096;">Без ограничений</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button onclick="openModal('edit', ${coupon.id})" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="toggleCouponStatus(${coupon.id})" class="btn btn-success btn-sm">
+                                    <i class="fas fa-toggle-on"></i>
+                                </button>
+                                <button onclick="deleteCoupon(${coupon.id})" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal для добавления/редактирования промокода -->
+    <div id="couponModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Добавить промокод</h2>
+            <form id="couponForm">
+                <input type="hidden" id="couponId" name="id">
+                
+                <div class="form-group">
+                    <label for="couponCode">Код промокода *</label>
+                    <input type="text" id="couponCode" name="code" required placeholder="WELCOME10">
+                </div>
+                
+                <div class="form-group">
+                    <label>Тип скидки *</label>
+                    <div class="discount-type-selector">
+                        <div class="discount-type-option" onclick="selectDiscountType('percentage')">
+                            <i class="fas fa-percentage"></i>
+                            <div>Процентная</div>
+                        </div>
+                        <div class="discount-type-option" onclick="selectDiscountType('amount')">
+                            <i class="fas fa-ruble-sign"></i>
+                            <div>Фиксированная</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="discountType" name="discountType" value="percentage">
+                </div>
+                
+                <div class="form-group" id="percentageGroup">
+                    <label for="discountPercentage">Размер скидки (%)</label>
+                    <input type="number" id="discountPercentage" name="discountPercentage" min="1" max="100" step="0.01">
+                </div>
+                
+                <div class="form-group" id="amountGroup" style="display: none;">
+                    <label for="discountAmount">Размер скидки (₽)</label>
+                    <input type="number" id="discountAmount" name="discountAmount" min="1" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="minOrderAmount">Минимальная сумма заказа (₽)</label>
+                    <input type="number" id="minOrderAmount" name="minOrderAmount" min="0" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="usageLimit">Лимит использований</label>
+                    <input type="number" id="usageLimit" name="usageLimit" min="1" placeholder="Оставьте пустым для неограниченного использования">
+                </div>
+                
+                <div class="form-group">
+                    <label for="expirationDate">Дата истечения</label>
+                    <input type="datetime-local" id="expirationDate" name="expirationDate">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="couponActive" name="isActive" checked>
+                        Активный промокод
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 30px;">
+                    <button type="button" onclick="closeModal()" class="btn btn-warning">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Выбор типа скидки
+        function selectDiscountType(type) {
+            const options = document.querySelectorAll('.discount-type-option');
+            const percentageGroup = document.getElementById('percentageGroup');
+            const amountGroup = document.getElementById('amountGroup');
+            const discountType = document.getElementById('discountType');
+            
+            options.forEach(option => option.classList.remove('selected'));
+            event.target.closest('.discount-type-option').classList.add('selected');
+            
+            discountType.value = type;
+            
+            if (type === 'percentage') {
+                percentageGroup.style.display = 'block';
+                amountGroup.style.display = 'none';
+            } else {
+                percentageGroup.style.display = 'none';
+                amountGroup.style.display = 'block';
+            }
+        }
+        
+        // Генерация случайного промокода
+        function generateRandomCoupon() {
+            const codes = ['WELCOME10', 'SAVE20', 'NEWUSER', 'SUMMER15', 'WINTER25', 'SPRING30', 'AUTUMN40', 'HOLIDAY50'];
+            const randomCode = codes[Math.floor(Math.random() * codes.length)] + Math.floor(Math.random() * 1000);
+            document.getElementById('couponCode').value = randomCode;
+        }
+        
+        // Открытие модального окна
+        function openModal(action, couponId = null) {
+            const modal = document.getElementById('couponModal');
+            const form = document.getElementById('couponForm');
+            const title = document.getElementById('modalTitle');
+            
+            if (action === 'add') {
+                title.textContent = 'Добавить промокод';
+                form.reset();
+                document.getElementById('couponId').value = '';
+                selectDiscountType('percentage');
+            } else if (action === 'edit') {
+                title.textContent = 'Редактировать промокод';
+                // Здесь можно загрузить данные промокода через AJAX
+                loadCouponData(couponId);
+            }
+            
+            modal.style.display = 'block';
+        }
+        
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('couponModal').style.display = 'none';
+        }
+        
+        // Загрузка данных промокода для редактирования
+        function loadCouponData(couponId) {
+            // Здесь можно реализовать AJAX загрузку данных промокода
+            console.log('Loading coupon data for ID:', couponId);
+        }
+        
+        // Переключение статуса промокода
+        function toggleCouponStatus(couponId) {
+            if (confirm('Изменить статус этого промокода?')) {
+                console.log('Toggling coupon status for ID:', couponId);
+                alert('Статус промокода изменен!');
+                location.reload();
+            }
+        }
+        
+        // Удаление промокода
+        function deleteCoupon(couponId) {
+            if (confirm('Вы уверены, что хотите удалить этот промокод?')) {
+                console.log('Deleting coupon with ID:', couponId);
+                alert('Промокод удален!');
+                location.reload();
+            }
+        }
+        
+        // Обновление таблицы
+        function refreshTable() {
+            location.reload();
+        }
+        
+        // Поиск и фильтрация
+        document.getElementById('searchInput').addEventListener('input', filterTable);
+        document.getElementById('typeFilter').addEventListener('change', filterTable);
+        document.getElementById('statusFilter').addEventListener('change', filterTable);
+        
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('.table tbody tr');
+            
+            rows.forEach(row => {
+                const code = row.cells[1].textContent.toLowerCase();
+                const type = row.cells[2].textContent;
+                const status = row.cells[6].textContent;
+                
+                let show = true;
+                
+                if (searchTerm && !code.includes(searchTerm)) {
+                    show = false;
+                }
+                
+                if (typeFilter === 'percentage' && !type.includes('Процент')) {
+                    show = false;
+                } else if (typeFilter === 'amount' && !type.includes('Сумма')) {
+                    show = false;
+                }
+                
+                if (statusFilter === 'active' && !status.includes('Активен')) {
+                    show = false;
+                } else if (statusFilter === 'inactive' && !status.includes('Неактивен')) {
+                    show = false;
+                } else if (statusFilter === 'expired' && !status.includes('Истек')) {
+                    show = false;
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+        
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('couponModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Обработка формы
+        document.getElementById('couponForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const couponData = Object.fromEntries(formData.entries());
+            
+            console.log('Coupon data:', couponData);
+            
+            // Здесь можно реализовать AJAX отправку данных
+            alert('Промокод сохранен!');
+            closeModal();
+            location.reload();
+        });
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            selectDiscountType('percentage');
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,35 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5432/YP4SpringAuthorizathion
+        username: postgres
+        password: 1
+        hikari:
+            maximum-pool-size: 10
+            minimum-idle: 5
+            connection-timeout: 20000
+            idle-timeout: 300000
+    
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+        database: POSTGRESQL
+        properties:
+            hibernate:
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
+                dialect: org.hibernate.dialect.PostgreSQL95Dialect
+    
+    session:
+        timeout: 15m  # 15 минут максимальное время сессии
+        store-type: none
+    
+server:
+    servlet:
+        session:
+            timeout: 15m  # 15 минут
+            cookie:
+                max-age: 15m
+                http-only: true
+                secure: false

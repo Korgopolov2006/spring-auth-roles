@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог товаров - TechStore</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microchip"></i>
+                    <span>TechStore</span>
+                </div>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/catalog" class="nav-link active">Каталог</a>
+                    <a href="/about" class="nav-link">О нас</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="/cart" class="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                    <div class="user-menu" th:if="${#authentication == null}">
+                        <a th:href="@{/login}" class="btn btn-outline">Войти</a>
+                        <a th:href="@{/registration}" class="btn btn-primary">Регистрация</a>
+                    </div>
+                    <div class="user-menu" th:if="${#authentication != null}">
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-btn">
+                                <i class="fas fa-user"></i>
+                                <span class="user-name" th:text="${#authentication.name}">Пользователь</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="user-dropdown-menu">
+                                <a th:href="@{/orders}" class="dropdown-item">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Мои заказы
+                                </a>
+                                <a th:href="@{/user/profile}" class="dropdown-item">
+                                    <i class="fas fa-user-circle"></i>
+                                    Профиль
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a th:href="@{/logout}" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Выйти
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a href="/">Главная</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>Каталог</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="catalog-layout">
+                <!-- Sidebar -->
+                <aside class="catalog-sidebar">
+                    <div class="sidebar-section">
+                        <h3>Категории</h3>
+                        <ul class="category-list">
+                            <li><a href="/catalog" th:classappend="${currentCategoryId == null} ? 'active' : ''">Все товары</a></li>
+                            <li th:each="category : ${categories}">
+                                <a th:href="@{/catalog(categoryId=${category.id})}" 
+                                   th:classappend="${currentCategoryId == category.id} ? 'active' : ''"
+                                   th:text="${category.name}">Категория</a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3>Производители</h3>
+                        <ul class="manufacturer-list">
+                            <li><a href="/catalog" th:classappend="${currentManufacturerId == null} ? 'active' : ''">Все производители</a></li>
+                            <li th:each="manufacturer : ${manufacturers}">
+                                <a th:href="@{/catalog(manufacturerId=${manufacturer.id})}" 
+                                   th:classappend="${currentManufacturerId == manufacturer.id} ? 'active' : ''"
+                                   th:text="${manufacturer.name}">Производитель</a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3>Цена</h3>
+                        <form id="price-filter" class="price-filter">
+                            <div class="price-inputs">
+                                <input type="number" name="minPrice" placeholder="От" min="0">
+                                <span>-</span>
+                                <input type="number" name="maxPrice" placeholder="До" min="0">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Применить</button>
+                        </form>
+                    </div>
+                </aside>
+
+                <!-- Products -->
+                <div class="catalog-main">
+                    <!-- Search and Sort -->
+                    <div class="catalog-header">
+                        <div class="search-section">
+                            <form class="search-form" method="get" action="/catalog">
+                                <input type="text" name="search" placeholder="Поиск товаров..." 
+                                       th:value="${currentSearch}" class="search-input">
+                                <button type="submit" class="search-btn">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="sort-section">
+                            <form class="sort-form" method="get" action="/catalog">
+                                <input type="hidden" name="categoryId" th:value="${currentCategoryId}">
+                                <input type="hidden" name="manufacturerId" th:value="${currentManufacturerId}">
+                                <input type="hidden" name="search" th:value="${currentSearch}">
+                                
+                                <label for="sortBy">Сортировка:</label>
+                                <select name="sortBy" id="sortBy" onchange="this.form.submit()">
+                                    <option value="name" th:selected="${currentSort == 'name'}">По названию</option>
+                                    <option value="price" th:selected="${currentSort == 'price'}">По цене</option>
+                                    <option value="createdAt" th:selected="${currentSort == 'createdAt'}">По дате</option>
+                                </select>
+                                
+                                <select name="sortDir" onchange="this.form.submit()">
+                                    <option value="asc" th:selected="${currentSortDir == 'asc'}">По возрастанию</option>
+                                    <option value="desc" th:selected="${currentSortDir == 'desc'}">По убыванию</option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div class="products-grid" th:if="${products.content.size() > 0}">
+                        <div th:each="product : ${products.content}" class="product-card">
+                            <div class="product-image">
+                                <img th:src="${product.images != null and !product.images.empty ? product.images[0].imageUrl : '/images/placeholder.jpg'}" 
+                                     th:alt="${product.name}"
+                                     onerror="this.src='/images/placeholder.jpg'">
+                                <div class="product-badge" th:if="${product.isFeatured}">Хит</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 th:text="${product.name}">Название товара</h3>
+                                <p class="product-description" th:text="${product.description}">Описание товара</p>
+                                <div class="product-price">
+                                    <span class="current-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                    <span th:if="${product.oldPrice != null}" class="old-price" th:text="${#numbers.formatDecimal(product.oldPrice, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                </div>
+                                <div class="product-stock" th:if="${product.stockQuantity > 0}">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>В наличии</span>
+                                </div>
+                                <div class="product-stock out-of-stock" th:if="${product.stockQuantity == 0}">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Нет в наличии</span>
+                                </div>
+                                <div class="product-actions">
+                                    <a th:href="@{/product/{id}(id=${product.id})}" class="btn btn-outline">Подробнее</a>
+                                    <button class="btn btn-primary add-to-cart" 
+                                            th:data-product-id="${product.id}"
+                                            th:disabled="${product.stockQuantity == 0}">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No Products -->
+                    <div class="no-products" th:if="${products.content.size() == 0}">
+                        <div class="no-products-content">
+                            <i class="fas fa-search"></i>
+                            <h3>Товары не найдены</h3>
+                            <p>Попробуйте изменить параметры поиска или фильтры</p>
+                            <a href="/catalog" class="btn btn-primary">Сбросить фильтры</a>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" th:if="${products.totalPages > 1}">
+                        <a th:if="${products.hasPrevious()}" 
+                           th:href="@{/catalog(page=${products.number - 1}, categoryId=${currentCategoryId}, manufacturerId=${currentManufacturerId}, search=${currentSearch}, sortBy=${currentSort}, sortDir=${currentSortDir})}"
+                           class="pagination-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        
+                        <span class="pagination-info">
+                            Страница <span th:text="${products.number + 1}">1</span> из <span th:text="${products.totalPages}">1</span>
+                        </span>
+                        
+                        <a th:if="${products.hasNext()}" 
+                           th:href="@{/catalog(page=${products.number + 1}, categoryId=${currentCategoryId}, manufacturerId=${currentManufacturerId}, search=${currentSearch}, sortBy=${currentSort}, sortDir=${currentSortDir})}"
+                           class="pagination-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TechStore</h3>
+                    <p>Ваш надежный партнер в мире электроники</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Каталог</h4>
+                    <ul>
+                        <li><a href="/catalog">Все товары</a></li>
+                        <li><a href="/catalog?categoryId=1">Смартфоны</a></li>
+                        <li><a href="/catalog?categoryId=2">Ноутбуки</a></li>
+                        <li><a href="/catalog?categoryId=3">Планшеты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Поддержка</h4>
+                    <ul>
+                        <li><a href="/help">Помощь</a></li>
+                        <li><a href="/delivery">Доставка</a></li>
+                        <li><a href="/warranty">Гарантия</a></li>
+                        <li><a href="/returns">Возврат</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <p>+7 (800) 555-35-35</p>
+                    <p>info@techstore.ru</p>
+                    <p>Москва, ул. Техническая, 1</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TechStore. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script th:src="@{/js/store.js}"></script>
+</body>
+</html>
+

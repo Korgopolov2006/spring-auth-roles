@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель модератора | Spring Security</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .moderator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .moderator-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .moderator-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .moderator-subtitle {
+            color: #4a5568;
+            font-size: 16px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            font-size: 48px;
+            color: #ed8936;
+            margin-bottom: 15px;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .moderator-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .action-button {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+            text-decoration: none;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(237, 137, 54, 0.3);
+        }
+        
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(237, 137, 54, 0.4);
+            color: white;
+        }
+        
+        .action-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .logout-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .logout-button {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(229, 62, 62, 0.3);
+        }
+        
+        .logout-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(229, 62, 62, 0.4);
+        }
+        
+        .session-info {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="moderator-container">
+        <div class="moderator-header">
+            <h1 class="moderator-title">
+                <i class="fas fa-user-shield"></i> Панель модератора
+            </h1>
+            <p class="moderator-subtitle">Добро пожаловать в систему модерации контента</p>
+        </div>
+        
+        <div class="session-info">
+            <i class="fas fa-clock"></i> Сессия активна. Автоматический выход через 15 минут бездействия или через 3 минуты неактивности.
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number" th:text="${userCount}">0</div>
+                <div class="stat-label">Всего пользователей</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-number" th:text="${activeUsers}">0</div>
+                <div class="stat-label">Активных пользователей</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-number">5</div>
+                <div class="stat-label">Требует модерации</div>
+            </div>
+        </div>
+        
+        <div class="moderator-actions">
+            <a href="/moderator/users" class="action-button">
+                <i class="fas fa-users action-icon"></i>
+                Просмотр пользователей
+            </a>
+            
+            <a href="/moderator/reports" class="action-button">
+                <i class="fas fa-chart-line action-icon"></i>
+                Отчеты модерации
+            </a>
+            
+            <a href="/moderator/content" class="action-button">
+                <i class="fas fa-file-alt action-icon"></i>
+                Модерация контента
+            </a>
+            
+            <a href="/moderator/settings" class="action-button">
+                <i class="fas fa-cog action-icon"></i>
+                Настройки модерации
+            </a>
+        </div>
+        
+        <div class="logout-section">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-button">
+                    <i class="fas fa-sign-out-alt"></i> Выйти из системы
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Автоматический выход через 3 минуты бездействия
+        let inactivityTimer;
+        const inactivityTimeout = 3 * 60 * 1000; // 3 минуты
+        
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                alert('Сессия завершена из-за неактивности');
+                window.location.href = '/login';
+            }, inactivityTimeout);
+        }
+        
+        // Сброс таймера при активности пользователя
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+        
+        // Запуск таймера при загрузке страницы
+        resetInactivityTimer();
+    </script>
+</body>
+</html>
+
+
